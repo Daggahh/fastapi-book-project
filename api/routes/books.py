@@ -66,4 +66,4 @@ async def get_book(book_id: int):
     book = db.get_book(book_id)
     if not book:
         return JSONResponse(status_code=404, content={"detail": "Book not found"})
-    return book
+    return book #testing auto-deployment
