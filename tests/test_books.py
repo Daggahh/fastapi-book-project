@@ -50,3 +50,17 @@ def test_delete_book():
 
     response = client.get("/books/3")
     assert response.status_code == 404
+
+
+def test_get_existing_book():
+    response = client.get("/books/1")
+    assert response.status_code == 200
+    data = response.json()
+    assert data["title"] == "The Hobbit: An Unexpected Journey" 
+    assert data["author"] == "J.R.R. Tolkien"
+
+
+def test_get_non_existent_book():
+    response = client.get("/books/999")
+    assert response.status_code == 404
+    assert response.json() == {"detail": "Book not found"}
