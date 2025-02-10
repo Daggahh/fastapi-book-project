@@ -1,0 +1,36 @@
+name: Deploy FastAPI App
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  deploy:
+    name: Deploy Application
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: "3.11"
+
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r requirements.txt
+
+      - name: Deploy FastAPI Application
+        run: |
+          # Stop the existing FastAPI service (if running)
+          sudo systemctl stop fastapi-app || true
+
+          # Copy new code to the server (adjust this for your setup)
+          rsync -avz --delete ./ user@your-server-ip:/path/to/your/app
+
+          # Restart the FastAPI service
+          sudo systemctl start fastapi-app
