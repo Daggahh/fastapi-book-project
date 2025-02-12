@@ -15,7 +15,7 @@ RUN apt-get update && apt-get install -y nginx
 
 # Copy and run the Nginx setup script
 COPY setup_nginx.sh /setup_nginx.sh
-RUN chmod +x /setup_nginx.sh && /setup_nginx.sh
+RUN chmod +x /setup_nginx.sh && bash /setup_nginx.sh
 
 # Expose only port 80 (Nginx)
 EXPOSE 80
