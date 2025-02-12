@@ -20,9 +20,11 @@ jobs:
           echo "${{ secrets.SSH_PRIVATE_KEY }}" > private_key.pem
           chmod 600 private_key.pem
 
-      - name: Add known hosts
-        run: ssh-keyscan -H 84.8.132.120 >> ~/.ssh/known_hosts
-
+      - name: Add VPS to known hosts
+        run: |
+            mkdir -p ~/.ssh
+            ssh-keyscan -H 84.8.132.120 >> ~/.ssh/known_hosts
+        
       - name: Deploy to VPS
         run: |
           ssh -i private_key.pem ubuntu@84.8.132.120 << 'EOF'
