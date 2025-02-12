@@ -6,4 +6,4 @@ services:
     envVars:
       - key: PORT
         value: 80
-    dockerCommand: ["nginx", "-g", "daemon off;"]
+    dockerCommand: ["/bin/bash", "setup_nginx.sh"]
