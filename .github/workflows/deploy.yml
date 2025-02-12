@@ -1,18 +1,34 @@
-name: Deploy to Render
+name: Deploy to VPS
 
 on:
   push:
     branches:
       - main
   workflow_dispatch:
+
 jobs:
   deploy:
-    name: Deploy to Render
+    name: Deploy to Oracle VPS
     runs-on: ubuntu-latest
 
     steps:
-      - name: Notify Render to Redeploy
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up SSH key
         run: |
-          echo "Triggering redeployment..."
-          curl -X POST -d "" ${{ secrets.RENDER_DEPLOY_HOOK }}
-          echo "Deployment request sent to Render."
+          echo "${{ secrets.SSH_PRIVATE_KEY }}" > private_key.pem
+          chmod 600 private_key.pem
+
+      - name: Deploy to VPS
+        run: |
+            ssh -o StrictHostKeyChecking=no -i private_key.pem ubuntu@84.8.138.128 << 'EOF'
+            cd /home/ubuntu/your-fastapi-project
+            git pull origin main
+            source venv/bin/activate
+            pip install -r requirements.txt
+            sudo systemctl restart fastapi
+            EOF
+  
+      - name: Cleanup
+        run: rm private_key.pem
