@@ -10,5 +10,14 @@ COPY . /app
 # Install dependencies
 RUN pip install --no-cache-dir -r requirements.txt
 
-# Start the FastAPI app (only accessible internally)
-CMD ["uvicorn", "main:app", "--host", "0.0.0.0", "--port", "8000"]
+# Install Nginx
+RUN apt-get update && apt-get install -y nginx
+
+# Copy Nginx config
+COPY nginx.conf /etc/nginx/nginx.conf
+
+# Expose only port 80 (Nginx)
+EXPOSE 80
+
+# Start both Nginx and FastAPI
+CMD bash -c "service nginx start && uvicorn main:app --host 127.0.0.1 --port 8000"
