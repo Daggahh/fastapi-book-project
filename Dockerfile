@@ -13,8 +13,9 @@ RUN pip install --no-cache-dir -r requirements.txt
 # Install Nginx
 RUN apt-get update && apt-get install -y nginx
 
-# Copy Nginx config
-COPY nginx.conf /etc/nginx/nginx.conf
+# Copy and run the Nginx setup script
+COPY setup_nginx.sh /setup_nginx.sh
+RUN chmod +x /setup_nginx.sh && /setup_nginx.sh
 
 # Expose only port 80 (Nginx)
 EXPOSE 80
