@@ -143,6 +143,6 @@ curl -I http://localhost/api/v1/books/1
 
 ## Submission Details
 
-- **Base URL:** `https://fastapi-book-project-hdr9.onrender.com`
+- **Base URL:** ``
 - **GitHub Repo:** `https://github.com/Daggahh/fastapi-book-project.git`
 - **Collaborator:** Invited `hng12-devbot` to repository

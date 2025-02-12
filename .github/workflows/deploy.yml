@@ -23,12 +23,20 @@ jobs:
       - name: Deploy to VPS
         run: |
             ssh -o StrictHostKeyChecking=no -i private_key.pem ubuntu@84.8.138.128 << 'EOF'
-            cd /home/ubuntu/your-fastapi-project
+            set -e
+  
+            echo "🚀 Pulling latest code..."
+            cd /home/ubuntu/fastapi-book-project || exit 1
             git pull origin main
-            source venv/bin/activate
-            pip install -r requirements.txt
-            sudo systemctl restart fastapi
-            EOF
+  
+            echo "🐳 Stopping existing containers..."
+            docker compose down
+  
+            echo "📦 Rebuilding and restarting containers..."
+            docker compose up --build -d
+  
+            echo "✅ Deployment successful!"
+            EOF  
   
       - name: Cleanup
         run: rm private_key.pem
