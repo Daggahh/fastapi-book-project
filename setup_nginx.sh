@@ -1,5 +1,6 @@
 #!/usr/bin/env bash
 # Install and configure Nginx on Render
+set -e  # Exit on error
 
 # Install Nginx
 apt-get update -y
@@ -36,3 +37,6 @@ EOF
 
 # Restart Nginx
 service nginx restart
+
+# Verify Nginx installation
+nginx -t  # Check for syntax errors
