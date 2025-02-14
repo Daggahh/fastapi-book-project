@@ -1,32 +1,32 @@
 {
-    "family": "fastapi-task",
-    "containerDefinitions": [
-      {
-        "name": "fastapi-container",
-        "image": "396608779477.dkr.ecr.us-east-1.amazonaws.com/fastapi-app:latest",
-        "memory": 512,
-        "cpu": 256,
-        "essential": true,
-        "portMappings": [
-          {
-            "containerPort": 8000,
-            "hostPort": 8000,
-            "protocol": "tcp"
-          }
-        ],
-        "logConfiguration": {
-          "logDriver": "awslogs",
-          "options": {
-            "awslogs-group": "/ecs/fastapi-task",
-            "awslogs-region": "us-east-1",
-            "awslogs-stream-prefix": "ecs"
-          }
+  "family": "fastapi-task",
+  "executionRoleArn": "arn:aws:iam::396608779477:role/ecsTaskExecutionRole",
+  "containerDefinitions": [
+    {
+      "name": "fastapi-container",
+      "image": "396608779477.dkr.ecr.us-east-1.amazonaws.com/fastapi-app:latest",
+      "memory": 512,
+      "cpu": 256,
+      "essential": true,
+      "portMappings": [
+        {
+          "containerPort": 8000,
+          "hostPort": 8000,
+          "protocol": "tcp"
+        }
+      ],
+      "logConfiguration": {
+        "logDriver": "awslogs",
+        "options": {
+          "awslogs-group": "/ecs/fastapi-task",
+          "awslogs-region": "us-east-1",
+          "awslogs-stream-prefix": "ecs"
         }
       }
-    ],
-    "networkMode": "awsvpc",
-    "requiresCompatibilities": ["FARGATE"],
-    "cpu": "512",
-    "memory": "1024"
-  }
-  
+    }
+  ],
+  "networkMode": "awsvpc",
+  "requiresCompatibilities": ["FARGATE"],
+  "cpu": "512",
+  "memory": "1024"
+}
