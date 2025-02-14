@@ -11,7 +11,7 @@ env:
   ECR_REPOSITORY: fastapi-app
   ECS_CLUSTER: fastapi-cluster
   ECS_SERVICE: fastapi-service
-  ECS_TASK_DEFINITION: .github/task-definition.json
+  ECS_TASK_DEFINITION: task-definition.json
   CONTAINER_NAME: fastapi-container
   ECR_URI: 396608779477.dkr.ecr.us-east-1.amazonaws.com/fastapi-app
   ECR_URI_NGINX: 396608779477.dkr.ecr.us-east-1.amazonaws.com/nginx-reverse-proxy
