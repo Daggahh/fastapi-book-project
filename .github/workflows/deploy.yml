@@ -1,4 +1,4 @@
-name: Deploy to VPS
+name: Deploy to AWS ECS
 
 on:
   push:
@@ -6,43 +6,40 @@ on:
       - main
   workflow_dispatch:
 
+env:
+  AWS_REGION: us-east-1  # Change to your AWS region
+  ECR_REPOSITORY: fastapi-app
+  ECS_CLUSTER: fastapi-cluster
+  ECS_SERVICE: fastapi-service
+  ECS_TASK_DEFINITION: .github/task-definition.json
+  CONTAINER_NAME: fastapi-container
+
 jobs:
   deploy:
-    name: Deploy to Oracle VPS
+    name: Deploy to AWS ECS
     runs-on: ubuntu-latest
 
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
 
-      - name: Set up SSH key
+      - name: Set up AWS credentials
+        uses: aws-actions/configure-aws-credentials@v2
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-region: ${{ env.AWS_REGION }}
+
+      - name: Log in to Amazon ECR
         run: |
-          echo "${{ secrets.SSH_PRIVATE_KEY }}" > private_key.pem
-          chmod 600 private_key.pem
+          aws ecr get-login-password --region $AWS_REGION | docker login --username AWS --password-stdin $AWS_ACCOUNT_ID.dkr.ecr.$AWS_REGION.amazonaws.com
 
-      - name: Add VPS to known hosts
+      - name: Build, tag, and push Docker image
         run: |
-            mkdir -p ~/.ssh
-            ssh-keyscan -H 84.8.132.120 >> ~/.ssh/known_hosts
-        
-      - name: Deploy to VPS
+          docker build -t $ECR_REPOSITORY .
+          docker tag $ECR_REPOSITORY:latest $AWS_ACCOUNT_ID.dkr.ecr.$AWS_REGION.amazonaws.com/$ECR_REPOSITORY:latest
+          docker push $AWS_ACCOUNT_ID.dkr.ecr.$AWS_REGION.amazonaws.com/$ECR_REPOSITORY:latest
+
+      - name: Update ECS service
         run: |
-          ssh -i private_key.pem ubuntu@84.8.132.120 << 'EOF'
-          set -e
-
-          echo "🚀 Pulling latest code..."
-          cd /home/ubuntu/fastapi-book-project || exit 1
-          git pull origin main
-
-          echo "📦 Activating virtual environment and installing dependencies..."
-          source venv/bin/activate
-          pip install --no-cache-dir -r requirements.txt
-
-          echo "🔄 Restarting FastAPI service..."
-          sudo systemctl restart fastapi
-
-          echo "✅ Deployment successful!"
-          EOF  
-
-      - name: Cleanup
-        run: rm private_key.pem
+          aws ecs update-service --cluster $ECS_CLUSTER --service $ECS_SERVICE --force-new-deployment
