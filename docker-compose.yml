@@ -1,10 +1,20 @@
 version: "3.8"
 
 services:
-  app:
+  fastapi:
     build: .
     ports:
       - "8000:8000"
     environment:
       - ENV=production
+    restart: always
+
+  nginx:
+    build:
+      context: .
+      dockerfile: Dockerfile.nginx
+    ports:
+      - "80:80"
+    depends_on:
+      - fastapi
     restart: always
