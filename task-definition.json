@@ -3,7 +3,7 @@
     "containerDefinitions": [
       {
         "name": "fastapi-container",
-        "image": "AWS_ACCOUNT_ID.dkr.ecr.us-east-1.amazonaws.com/fastapi-app:latest",
+        "image": "396608779477.dkr.ecr.us-east-1.amazonaws.com/fastapi-app:latest",
         "memory": 512,
         "cpu": 256,
         "essential": true,
