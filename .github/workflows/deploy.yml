@@ -14,6 +14,7 @@ env:
   ECS_TASK_DEFINITION: .github/task-definition.json
   CONTAINER_NAME: fastapi-container
   ECR_URI: 396608779477.dkr.ecr.us-east-1.amazonaws.com/fastapi-app
+  ECR_URI_NGINX: 396608779477.dkr.ecr.us-east-1.amazonaws.com/nginx-reverse-proxy
 
 jobs:
   deploy:
@@ -34,17 +35,26 @@ jobs:
       - name: Log in to Amazon ECR
         run: |
           aws ecr get-login-password --region $AWS_REGION | docker login --username AWS --password-stdin $ECR_URI
+          aws ecr get-login-password --region $AWS_REGION | docker login --username AWS --password-stdin $ECR_URI_NGINX
 
-          - name: Build, tag, and push Docker image
-          run: |
-            docker build -t $ECR_REPOSITORY .  # FastAPI Image
-            docker tag $ECR_REPOSITORY:latest $ECR_URI:latest
-            docker push $ECR_URI:latest
-
-            docker build -t nginx -f Dockerfile.nginx .  # Nginx Image
-            docker tag nginx:latest $ECR_URI/nginx:latest
-            docker push $ECR_URI/nginx:latest
-
-      - name: Update ECS service
+      - name: Build, tag, and push FastAPI image
         run: |
-          aws ecs update-service --cluster $ECS_CLUSTER --service $ECS_SERVICE --force-new-deployment
+          docker build -t $ECR_REPOSITORY:latest .
+          docker tag $ECR_REPOSITORY:latest $ECR_URI:latest
+          docker push $ECR_URI:latest
+
+      - name: Build, tag, and push Nginx image
+        run: |
+          docker build -t nginx -f Dockerfile.nginx .
+          docker tag nginx:latest $ECR_URI_NGINX:latest
+          docker push $ECR_URI_NGINX:latest
+
+      - name: Register new task definition
+        id: register-task
+        run: |
+          NEW_TASK_DEF=$(aws ecs register-task-definition --cli-input-json file://${{ env.ECS_TASK_DEFINITION }})
+          echo "TASK_DEF_ARN=$(echo $NEW_TASK_DEF | jq -r '.taskDefinition.taskDefinitionArn')" >> $GITHUB_ENV
+
+      - name: Update ECS service with new task definition
+        run: |
+          aws ecs update-service --cluster $ECS_CLUSTER --service $ECS_SERVICE --task-definition $TASK_DEF_ARN --force-new-deployment
